@@ -128,7 +128,6 @@ class Shell:
                 continue
 
             parts = parse_command_line(command_line)
-            print(parts)
             command = parts[0]
             args = parts[1:]
 
