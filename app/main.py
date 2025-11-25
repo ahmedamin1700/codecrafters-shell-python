@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 
 def find_executable(file: str) -> str|None:
     path_list = os.environ.get('PATH', '').split(os.pathsep)
@@ -32,7 +33,12 @@ def main():
                 else:
                     print(f"{parts[1]} not found")
         else:
-            print(f"{command}: command not found")
+            executable = find_executable(parts[0])
+            if executable:
+                result = subprocess.run(parts, capture_output=True, text=True, check=True)
+                print(result.stdout)
+            else:
+                print(f"{command}: command not found")
 
 if __name__ == "__main__":
     main()
