@@ -29,6 +29,7 @@ class Shell:
             "echo": self._handle_echo,
             "type": self._handle_type,
             "pwd": self._handle_pwd,
+            "cd": self._handle_cd,
         }
 
     def _handle_exit(self, args: list[str]) -> None:
@@ -59,6 +60,13 @@ class Shell:
 
     def _handle_pwd(self, args):
         print(os.getcwd())
+
+    def _handle_cd(self, args):
+        path = args[0]
+        try:
+            os.chdir(path)
+        except FileNotFoundError:
+            print(f"cd {path}: No such file or directory")
 
     def _execute_external(self, parts):
         """Handler for executing external commands."""
