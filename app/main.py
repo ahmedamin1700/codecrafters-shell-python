@@ -64,7 +64,11 @@ class Shell:
     def _handle_cd(self, args):
         path = args[0]
         try:
-            os.chdir(path)
+            if path == "~":
+                home = os.getenv("HOME")
+                os.chdir(home)
+            else:
+                os.chdir(path)
         except FileNotFoundError:
             print(f"cd: {path}: No such file or directory")
 
