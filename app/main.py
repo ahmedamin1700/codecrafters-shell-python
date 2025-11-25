@@ -3,7 +3,7 @@ import sys
 
 def main():
     while True:
-        recognized = ("echo", "exit")
+        recognized = ("echo", "exit", "type")
         sys.stdout.write("$ ")
         command = input("")
         if command == "exit":
