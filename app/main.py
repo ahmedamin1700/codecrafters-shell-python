@@ -2,45 +2,99 @@ import sys
 import os
 import subprocess
 
-def find_executable(file: str) -> str|None:
+def find_executable(program: str) -> str|None:
+    """
+    Searches for an executable in user's PATH.
+
+    Args:
+        program (str): program to find in PATH.
+
+    Returns:
+        str|None: executable path for the mentioned program if found.
+    """
     path_list = os.environ.get('PATH', '').split(os.pathsep)
 
     for directory in path_list:
-        file_path = f"{directory}/{file}"
+        file_path = f"{directory}/{program}"
         
         if os.path.isfile(file_path):
             if os.access(file_path, os.X_OK):
                 return file_path
 
 
-def main():
-    while True:
-        recognized = ("echo", "exit", "type")
-        sys.stdout.write("$ ")
-        command = input("")
-        if command == "exit":
-            break
-        parts = command.split(" ")
-        if parts[0] == "echo":
-            print(f"{" ".join(parts[1:])}")
-        elif parts[0] == "type":
-            if parts[1] in recognized:
-                print(f"{parts[1]} is a shell builtin")
-            else:
-                executable = find_executable(parts[1])
-                if executable:
-                    print(f"{parts[1]} is {executable}")
-                else:
-                    print(f"{parts[1]} not found")
+class Shell:
+    def __init__(self):
+        self._builtins = {
+            "exit": self._handle_exit,
+            "echo": self._handle_echo,
+            "type": self._handle_type,
+            "pwd": self._handle_pwd,
+        }
+
+    def _handle_exit(self, args: list[str]) -> None:
+        """Handler for the 'exit' command."""
+        if args and args[0] == 0:
+            sys.exit(0)
         else:
-            executable = find_executable(parts[0])
+            sys.exit(0)
+    
+    def _handle_echo(self, args):
+        """Handler for the 'echo' command."""
+        print(" ".join(args))
+
+    def _handle_type(self, args):
+        """Handler for the 'type' command."""
+        if not args:
+            return # 'type' with no argument does nothing
+
+        cmd_to_check = args[0]
+        if cmd_to_check in self._builtins:
+            print(f"{cmd_to_check} is a shell builtin")
+        else:
+            executable = find_executable(cmd_to_check)
             if executable:
-                # print(f"Program was passed {len(parts)} args (including program name).")
-                # for i, arg in enumerate(parts):
-                #     print(f"Arg #{i}{":" if i != 0 else ""}{" (program name):" if i == 0 else ""} {arg}")
-                subprocess.run(parts)
+                print(f"{cmd_to_check} is {executable}")
             else:
-                print(f"{command}: command not found")
+                print(f"{cmd_to_check}: not found")
+
+    def _handle_pwd(self):
+        print(os.getcwd())
+
+    def _execute_external(self, parts):
+        """Handler for executing external commands."""
+        command = parts[0]
+        executable = find_executable(command)
+        
+        if executable:
+            # The shell's only job is to run the command.
+            # The external program will handle printing its own output.
+            subprocess.run(parts)
+        else:
+            print(f"{command}: command not found")
+    
+    def run(self):
+        """The main loop of the shell."""
+        while True:
+            sys.stdout.write("$ ")
+            sys.stdout.flush() # Ensure the prompt appears before input
+            
+            command_line = input()
+            if not command_line:
+                continue
+
+            parts = command_line.split(" ")
+            command = parts[0]
+            args = parts[1:]
+
+            # The dispatcher logic starts here
+            if command in self._builtins:
+                # If it's a built-in, call its handler method.
+                self._builtins[command](args)
+            else:
+                # Otherwise, treat it as an external command.
+                self._execute_external(parts)
 
 if __name__ == "__main__":
-    main()
+    # To run the shell, create an instance and call its run method.
+    shell = Shell()
+    shell.run()
