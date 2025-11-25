@@ -21,6 +21,39 @@ def find_executable(program: str) -> str|None:
             if os.access(file_path, os.X_OK):
                 return file_path
 
+def parse_command_line(line: str) -> list[str]:
+    """
+    Parses a command line string, handling single quotes and collapsing
+    unquoted whitespace.
+    """
+    args = []
+    current_arg = ""
+    is_in_quotes = False
+
+    for char in line:
+        if char == "'":
+            # Toggle the quoting state. Don't add the quote to the argument.
+            is_in_quotes = not is_in_quotes
+        
+        elif char == ' ' and not is_in_quotes:
+            # This is a separator for arguments.
+            # If we have a current argument built up, finish it.
+            if current_arg:
+                args.append(current_arg)
+                current_arg = ""
+            # If current_arg is already empty (e.g., multiple spaces),
+            # this does nothing, effectively collapsing the spaces.
+            
+        else:
+            # This is a normal character, either because it's not a space
+            # or because it's a space inside quotes.
+            current_arg += char
+            
+    # After the loop, there might be a final argument left over.
+    if current_arg:
+        args.append(current_arg)
+        
+    return args
 
 class Shell:
     def __init__(self):
@@ -94,7 +127,8 @@ class Shell:
             if not command_line:
                 continue
 
-            parts = command_line.split(" ")
+            parts = parse_command_line(command_line)
+            print(parts)
             command = parts[0]
             args = parts[1:]
 
