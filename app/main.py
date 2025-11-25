@@ -28,22 +28,35 @@ def parse_command_line(line: str) -> list[str]:
     """
     args = []
     current_arg = ""
-    is_in_quotes = False
+    quote_state = 0
 
     for char in line:
         if char == "'":
-            # Toggle the quoting state. Don't add the quote to the argument.
-            is_in_quotes = not is_in_quotes
-        
-        elif char == ' ' and not is_in_quotes:
-            # This is a separator for arguments.
-            # If we have a current argument built up, finish it.
-            if current_arg:
-                args.append(current_arg)
-                current_arg = ""
-            # If current_arg is already empty (e.g., multiple spaces),
-            # this does nothing, effectively collapsing the spaces.
-            
+            if quote_state == 2:
+                current_arg += char
+            elif quote_state == 0:
+                quote_state = 1
+            else:
+                quote_state = 0
+
+        elif char == '"':
+            if quote_state == 2:
+                quote_state = 0
+            else:
+                quote_state = 2
+
+        elif char == ' ':
+            if quote_state == 0:
+                # This is a separator for arguments.
+                # If we have a current argument built up, finish it.
+                if current_arg:
+                    args.append(current_arg)
+                    current_arg = ""
+                # If current_arg is already empty (e.g., multiple spaces),
+                # this does nothing, effectively collapsing the spaces.
+            else:
+                current_arg += char
+
         else:
             # This is a normal character, either because it's not a space
             # or because it's a space inside quotes.
