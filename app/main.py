@@ -66,7 +66,7 @@ class Shell:
         try:
             os.chdir(path)
         except FileNotFoundError:
-            print(f"cd {path}: No such file or directory")
+            print(f"cd: {path}: No such file or directory")
 
     def _execute_external(self, parts):
         """Handler for executing external commands."""
