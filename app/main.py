@@ -36,8 +36,8 @@ def main():
             executable = find_executable(parts[0])
             if executable:
                 # print(f"Program was passed {len(parts)} args (including program name).")
-                for i, arg in enumerate(parts):
-                    print(f"Arg #{i}{":" if i != 0 else ""}{" (program name):" if i == 0 else ""} {arg}")
+                # for i, arg in enumerate(parts):
+                #     print(f"Arg #{i}{":" if i != 0 else ""}{" (program name):" if i == 0 else ""} {arg}")
                 subprocess.run(parts)
             else:
                 print(f"{command}: command not found")
