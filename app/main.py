@@ -57,7 +57,7 @@ class Shell:
             else:
                 print(f"{cmd_to_check}: not found")
 
-    def _handle_pwd(self):
+    def _handle_pwd(self, args):
         print(os.getcwd())
 
     def _execute_external(self, parts):
