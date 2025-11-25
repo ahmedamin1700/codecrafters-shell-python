@@ -1,4 +1,15 @@
 import sys
+import os
+
+def find_executable(file: str) -> str|None:
+    path_list = os.environ.get('PATH', '').split(os.pathsep)
+
+    for directory in path_list:
+        file_path = f"{directory}/{file}"
+        
+        if os.path.isfile(file_path):
+            if os.access(file_path, os.X_OK):
+                return file_path
 
 
 def main():
@@ -15,7 +26,11 @@ def main():
             if parts[1] in recognized:
                 print(f"{parts[1]} is a shell builtin")
             else:
-                print(f"{parts[1]} not found")
+                executable = find_executable(parts[1])
+                if executable:
+                    print(f"{parts[1]} is {executable}")
+                else:
+                    print(f"{parts[1]} not found")
         else:
             print(f"{command}: command not found")
 
