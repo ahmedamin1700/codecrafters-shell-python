@@ -36,7 +36,7 @@ def main():
             executable = find_executable(parts[0])
             if executable:
                 result = subprocess.run(parts, capture_output=True, text=True, check=True)
-                print(f"Program was passed {len(parts)} args (including program name).")
+                # print(f"Program was passed {len(parts)} args (including program name).")
                 for i, arg in enumerate(parts):
                     print(f"Arg #{i}{":" if i != 0 else ""}{" (program name):" if i == 0 else ""} {arg}")
                 print(result.stdout, end="")
