@@ -21,6 +21,21 @@ def find_executable(program: str) -> str | None:
                 return file_path
 
 
+def find_executables_in_path(prefix: str):
+    executables = set()
+    path_list = os.environ.get("PATH", "").split(os.pathsep)
+
+    for directory in path_list:
+        if os.path.isdir(directory):
+            files = os.listdir(directory)
+            for filename in files:
+                if filename.startswith(prefix):
+                    full_path = f"{directory}/{filename}"
+                    if os.access(full_path, os.X_OK):
+                        executables.add(filename)
+    return executables
+
+
 def parse_command_line(line: str) -> list[str]:
     """
     Parses a command line string, handling quotes and collapsing
