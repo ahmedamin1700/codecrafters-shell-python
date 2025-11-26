@@ -2,7 +2,8 @@ import sys
 import os
 import subprocess
 
-def find_executable(program: str) -> str|None:
+
+def find_executable(program: str) -> str | None:
     """
     Searches for an executable in user's PATH.
 
@@ -12,61 +13,67 @@ def find_executable(program: str) -> str|None:
     Returns:
         str|None: executable path for the mentioned program if found.
     """
-    path_list = os.environ.get('PATH', '').split(os.pathsep)
+    path_list = os.environ.get("PATH", "").split(os.pathsep)
 
     for directory in path_list:
         file_path = f"{directory}/{program}"
-        
+
         if os.path.isfile(file_path):
             if os.access(file_path, os.X_OK):
                 return file_path
 
+
 def parse_command_line(line: str) -> list[str]:
     """
-    Parses a command line string, handling single quotes and collapsing
+    Parses a command line string, handling quotes and collapsing
     unquoted whitespace.
     """
     args = []
     current_arg = ""
-    quote_state = 0
+    quote_state = None
+    is_escaped = False
 
     for char in line:
-        if char == "'":
-            if quote_state == 2:
+        if is_escaped:
+            current_arg += char
+            is_escaped = False
+            continue
+        elif char == "\\":
+            if quote_state == "single":
                 current_arg += char
-            elif quote_state == 0:
-                quote_state = 1
             else:
-                quote_state = 0
+                is_escaped = True
+                continue
+        elif char == "'":
+            if quote_state == "double":
+                current_arg += char
+            elif quote_state == None:
+                quote_state = "single"
+            else:
+                quote_state = None
 
         elif char == '"':
-            if quote_state == 2:
-                quote_state = 0
+            if quote_state == "double":
+                quote_state = None
             else:
-                quote_state = 2
+                quote_state = "double"
 
-        elif char == ' ':
-            if quote_state == 0:
-                # This is a separator for arguments.
-                # If we have a current argument built up, finish it.
+        elif char == " ":
+            if quote_state == None:
                 if current_arg:
                     args.append(current_arg)
                     current_arg = ""
-                # If current_arg is already empty (e.g., multiple spaces),
-                # this does nothing, effectively collapsing the spaces.
             else:
                 current_arg += char
 
         else:
-            # This is a normal character, either because it's not a space
-            # or because it's a space inside quotes.
             current_arg += char
-            
-    # After the loop, there might be a final argument left over.
+
     if current_arg:
         args.append(current_arg)
-        
+
     return args
+
 
 class Shell:
     def __init__(self):
@@ -84,7 +91,7 @@ class Shell:
             sys.exit(0)
         else:
             sys.exit(0)
-    
+
     def _handle_echo(self, args):
         """Handler for the 'echo' command."""
         print(" ".join(args))
@@ -92,7 +99,7 @@ class Shell:
     def _handle_type(self, args):
         """Handler for the 'type' command."""
         if not args:
-            return # 'type' with no argument does nothing
+            return  # 'type' with no argument does nothing
 
         cmd_to_check = args[0]
         if cmd_to_check in self._builtins:
@@ -122,20 +129,20 @@ class Shell:
         """Handler for executing external commands."""
         command = parts[0]
         executable = find_executable(command)
-        
+
         if executable:
             # The shell's only job is to run the command.
             # The external program will handle printing its own output.
             subprocess.run(parts)
         else:
             print(f"{command}: command not found")
-    
+
     def run(self):
         """The main loop of the shell."""
         while True:
             sys.stdout.write("$ ")
-            sys.stdout.flush() # Ensure the prompt appears before input
-            
+            sys.stdout.flush()  # Ensure the prompt appears before input
+
             command_line = input()
             if not command_line:
                 continue
@@ -151,6 +158,7 @@ class Shell:
             else:
                 # Otherwise, treat it as an external command.
                 self._execute_external(parts)
+
 
 if __name__ == "__main__":
     # To run the shell, create an instance and call its run method.
