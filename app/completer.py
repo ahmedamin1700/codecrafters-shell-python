@@ -16,6 +16,6 @@ class Completer:
 
         # Return the match for the current state, or None if no more matches.
         try:
-            return self.matches[state]
+            return self.matches[state] + " "
         except IndexError:
             return None
