@@ -35,6 +35,10 @@ def parse_command_line(line: str) -> list[str]:
 
     for char in line:
         if is_escaped:
+            if quote_state == "double" and char not in ('"', "\\", "$"):
+                current_arg += f"\\{char}"
+                is_escaped = False
+                continue
             current_arg += char
             is_escaped = False
             continue
