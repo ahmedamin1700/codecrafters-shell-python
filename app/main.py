@@ -59,6 +59,8 @@ def parse_command_line(line: str) -> list[str]:
         elif char == '"':
             if quote_state == "double":
                 quote_state = None
+            elif quote_state == "single":
+                current_arg += char
             else:
                 quote_state = "double"
 
