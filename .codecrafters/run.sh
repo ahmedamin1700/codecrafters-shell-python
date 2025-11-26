@@ -7,5 +7,5 @@
 # Learn more: https://codecrafters.io/program-interface
 
 set -e # Exit on failure
-
+export PYTHONPATH=$PYTHONPATH:.
 exec uv run --quiet -m app.main "$@"
