@@ -84,10 +84,7 @@ class Shell:
             readline.parse_and_bind("tab: complete")
 
         while True:
-            sys.stdout.write("$ ")
-            sys.stdout.flush()  # Ensure the prompt appears before input
-
-            command_line = input()
+            command_line = input("$ ")
             if not command_line:
                 continue
 
