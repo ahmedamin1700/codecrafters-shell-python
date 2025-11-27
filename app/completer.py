@@ -13,7 +13,9 @@ class Completer:
 
         # When state is 0, we find all matches for the current 'text' prefix.
         if state == 0:
-            builtin_matches = [cmd for cmd in self.commands if cmd.startswith(text)]
+            builtin_matches = [
+                cmd + " " for cmd in self.commands if cmd.startswith(text)
+            ]
             # Also consider file path completion here if you want:
             # self.matches.extend(glob.glob(text + '*'))
             external_matches = find_executables_in_path(text)
@@ -23,6 +25,6 @@ class Completer:
 
         # Return the match for the current state, or None if no more matches.
         try:
-            return self.matches[state] + " "
+            return self.matches[state]
         except IndexError:
             return None
