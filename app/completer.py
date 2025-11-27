@@ -23,6 +23,16 @@ class Completer:
 
         # Return the match for the current state, or None if no more matches.
         try:
-            return self.matches[state] + " "
+            match = self.matches[state]
+
+            # --- THIS IS THE NEW LOGIC ---
+            # If there's only one possible match, add a space.
+            if len(self.matches) == 1:
+                return match + " "
+            # If there are multiple matches, return the plain word.
+            # The display hook will handle formatting.
+            else:
+                return match
+
         except IndexError:
             return None
